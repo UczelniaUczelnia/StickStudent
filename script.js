@@ -1,9 +1,6 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const CANVAS_HEIGHT = 1000;
-const CANVAS_WIDTH = 1000;
-
 const PLATFORM_HEIGHT = 200
 const PLATFORM_POSITION_HEIGHT = 400
 const PLATFORM_MIN_GAP = 40;
@@ -16,10 +13,20 @@ const PLATFORM_WIDTH_START = 50
 const HERO_WIDTH = 17; 
 const HERO_HEIGHT = 25;
 
+const STICK_WIDTH = 3;
+
 platforms = [{ xPosition: PLATFORM_POSITION_START, width: PLATFORM_WIDTH_START }];
 
 studentX = platforms[0].xPosition + platforms[0].width / 2
 studentY = 0;
+
+generatePlatforms(5);
+
+function draw() {
+  // ctx.clearRect(0, 0, canvas.width, canvas.height);
+  regeneratePlatforms();
+  drawStudent();
+}
 
 function generatePlatform() {
   const lastPlatform = platforms[platforms.length - 1];
@@ -35,6 +42,11 @@ function generatePlatforms(number) {
   for (let i = 0; i < number - 1; ++i)
     generatePlatform()
 
+  for (let i = 0; i < platforms.length; ++i)
+    ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
+}
+
+function regeneratePlatforms(number) {
   for (let i = 0; i < platforms.length; ++i)
     ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
 }
@@ -83,52 +95,73 @@ function drawStudent() {
   
 }
 
-generatePlatforms(5)
-drawStudent()
-// ctx.beginPath();
-// ctx.lineWidth = 2;
-// ctx.moveTo(PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1, PLATFORM_POSITION_HEIGHT);
-// ctx.lineTo(PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1, PLATFORM_POSITION_HEIGHT - 100);
-// ctx.stroke();
 
+let stickStartX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1, stickStartY = PLATFORM_POSITION_HEIGHT, stickEndX, stickEndY;
+let isDrawingRising = false;
+let isDrawingRotate = false;
+let stickLength = 0;
+let stickRotationAngle = 0;
 
-let drawing = false;
-let startX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1, startY = PLATFORM_POSITION_HEIGHT;
+function drawLine() {
+  ctx.lineWidth = STICK_WIDTH;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.beginPath();
+  ctx.moveTo(stickStartX, stickStartY);
+  ctx.lineTo(stickEndX, stickEndY);
+  ctx.stroke();
+}
 
-// Obsługa zdarzeń
-canvas.addEventListener("mousedown", function(e) {
-    drawing = true;
-      
-    // startX = e.clientX - canvas.offsetLeft;
-    // startY = e.clientY - canvas.offsetTop;
-    if (!drawing) return;
-    
-    const currentX = startX;
-    const currentY = startY;
+function animateStickRising() {
+  stickLength += 1;
 
-    while (startY > 100)
-    {
-      // Rysuj linię
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.lineTo(currentX, currentY);
-      ctx.stroke();
+  stickEndX = stickStartX;
+  stickEndY = stickStartY - stickLength;
 
-      // Zaktualizuj pozycję początkową
-      startX = currentX;
-      startY--;
-      console.log(startY)
-    }
+  drawLine();
+  draw();
+
+  if (isDrawingRising) {
+    requestAnimationFrame(animateStickRising);
+  }
+}
+
+function animateStickRotating() {
+  stickRotationAngle += Math.PI / 180 * 2;  // obrot o 2 stopnie
+  
+  stickEndX = stickStartX + Math.sin(stickRotationAngle) * stickLength;
+  stickEndY = stickStartY + (-Math.cos(stickRotationAngle)) * stickLength;
+
+  drawLine();
+  draw();
+  
+  if (stickRotationAngle > Math.PI / 2)  // stickRotationAngle > 90 stopni
+    isDrawingRotate = false;
+
+  if (isDrawingRotate) {
+    requestAnimationFrame(animateStickRotating);
+  }
+}
+
+canvas.addEventListener('mousedown', () => {
+  isDrawingRising = true;
+  animateStickRising();
 });
 
-canvas.addEventListener("mousemove", function(e) {
-    
+canvas.addEventListener('mouseup', () => {
+  stickRotationAngle = 0;
+  isDrawingRising = false;
+  isDrawingRotate = true;
+  animateStickRotating();
 });
 
-canvas.addEventListener("mouseup", function() {
-    drawing = false;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  draw();
 });
 
-canvas.addEventListener("mouseleave", function() {
-    drawing = false;
-});
+
+draw();
