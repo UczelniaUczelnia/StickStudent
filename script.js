@@ -25,7 +25,7 @@ generatePlatforms(5);
 function draw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
   regeneratePlatforms();
-  drawStudent();
+  drawStudent(xRange);
 }
 
 function generatePlatform() {
@@ -51,16 +51,18 @@ function regeneratePlatforms(number) {
     ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
 }
 
-function drawStudent() {
+function drawStudent(xRange) {
  
   ctx.save();
   ctx.fillStyle = "black";
-  ctx.translate(studentX,PLATFORM_POSITION_HEIGHT - 28 );
+  ctx.translate(studentX + xRange,PLATFORM_POSITION_HEIGHT - 28 );
 
   // Body
+  ctx.beginPath();
   ctx.fillStyle = "black";
   ctx.roundRect(0, 0, HERO_WIDTH, HERO_HEIGHT, 5);
   ctx.fill();
+  ctx.stroke();
 
   // Legs
   const LEG_DISTANCE = 3;
@@ -70,12 +72,14 @@ function drawStudent() {
   ctx.beginPath();
   ctx.arc(HERO_WIDTH - LEG_DISTANCE, HERO_HEIGHT, 3, 0, Math.PI * 2, false);
   ctx.fill();
+  ctx.stroke();
 
   // Eye
   ctx.beginPath();
   ctx.fillStyle = "white";
   ctx.arc(HERO_WIDTH - LEG_DISTANCE, HERO_HEIGHT-(HERO_HEIGHT-5), 3, 0, Math.PI * 2, false);
   ctx.fill();
+  ctx.stroke();
 
   // Band
   ctx.fillStyle = "blue";
@@ -90,6 +94,7 @@ function drawStudent() {
   ctx.lineTo(-8, 10);
   ctx.lineTo(2, 6);
   ctx.fill();
+  ctx.stroke();
 
   ctx.restore();
   
@@ -101,6 +106,8 @@ let isDrawingRising = false;
 let isDrawingRotate = false;
 let stickLength = 0;
 let stickRotationAngle = 0;
+let xRange = 0;
+let intervalID;
 
 function drawLine() {
   ctx.lineWidth = STICK_WIDTH;
@@ -111,7 +118,18 @@ function drawLine() {
   ctx.stroke();
 }
 
+function animateStudent() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawLine();
+  draw();
+  drawStudent(xRange);
+  xRange++; 
+  if (studentX + xRange + HERO_WIDTH >= stickEndX){
+    clearInterval(intervalID)
+  }
+}
 function animateStickRising() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   stickLength += 1;
 
   stickEndX = stickStartX;
@@ -126,6 +144,7 @@ function animateStickRising() {
 }
 
 function animateStickRotating() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   stickRotationAngle += Math.PI / 180 * 2;  // obrot o 2 stopnie
   
   stickEndX = stickStartX + Math.sin(stickRotationAngle) * stickLength;
@@ -140,6 +159,7 @@ function animateStickRotating() {
   if (isDrawingRotate) {
     requestAnimationFrame(animateStickRotating);
   }
+
 }
 
 canvas.addEventListener('mousedown', () => {
@@ -152,6 +172,7 @@ canvas.addEventListener('mouseup', () => {
   isDrawingRising = false;
   isDrawingRotate = true;
   animateStickRotating();
+  intervalID = setInterval(animateStudent, 60);
 });
 
 canvas.width = window.innerWidth;
