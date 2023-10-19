@@ -20,8 +20,37 @@ platforms = [{ xPosition: PLATFORM_POSITION_START, width: PLATFORM_WIDTH_START }
 studentX = platforms[0].xPosition + platforms[0].width / 2
 studentY = 0;
 
-generatePlatforms(5);
 
+
+pointStudnet = 0;
+indexStudentInPlatform = 0;
+function checkUserAlive()
+{
+	 if(studentX + stickLength >= platforms[indexStudentInPlatform + 1].xPosition && studentX + stickLength <= platforms[indexStudentInPlatform + 1].xPosition + platforms[indexStudentInPlatform + 1].width)
+	 {
+		 indexStudentInPlatform++;
+		 pointStudnet += 10;
+		 return true;
+	 } 
+	 return false;
+}
+
+function checkUserAlive1()
+{
+	for(let i = indexStudentInPlatform; i < platforms.length() - 1; ++i)
+	{
+	 if(studentX + stickLength >= platforms[i + 1].xPosition && studentX + stickLength <= platforms[i + 1].xPosition + platforms[i + 1].width)
+	 {
+		 indexStudentInPlatform += i;
+		 pointStudnet += 10 * i;
+		 return true;
+	 }
+	}
+	return false;
+}
+
+
+generatePlatforms(5);
 function draw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
   regeneratePlatforms();
