@@ -1,6 +1,7 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+
 const PLATFORM_HEIGHT = 200
 const PLATFORM_POSITION_HEIGHT = 400
 const PLATFORM_MIN_GAP = 40;
@@ -17,10 +18,51 @@ const STICK_WIDTH = 3;
 
 platforms = [{ xPosition: PLATFORM_POSITION_START, width: PLATFORM_WIDTH_START }];
 
+
+const x = PLATFORM_POSITION_START + (PLATFORM_WIDTH_START / 2);
+const y = x  - PLATFORM_POSITION_START;
+const PLATFORM_POSITION_START_SMAL = PLATFORM_POSITION_START + y;
+const PLATFORM_WIDTH_START_Smal = PLATFORM_WIDTH_START / 2;
+const PLATFORM_HEIGHT_Point_end = 400;
+const PLATFORM_HEIGHT_Point_Start = 395
+platformsPoint = [{ xPosition: PLATFORM_POSITION_START_SMAL, width: PLATFORM_WIDTH_START_Smal}];
+
+
 studentX = platforms[0].xPosition + platforms[0].width / 2
 studentY = 0;
 
+function generatePlatformPoint() 
+{
+  console.log( platforms.length);
+  for(let i = 1; i < platforms.length; ++i)
+  {
+    let platform = platforms[i];
+    
+    
+    let polowa = platform.xPosition + (platform.width / 2);
+    let polowa2 = polowa  - platform.xPosition;
+    const platformPossion = platform.xPosition + polowa2;
+    const platformWidt = platform.width / 2;
+    platformsPoint.push({ platformPossion, platformWidt });
+    console.log(platformsPoint);
+  }
+}
 
+function generatePlatformsPoint() 
+{
+
+  generatePlatformPoint();
+  for (let i = 0; i < platformsPoint.length; ++i)
+    ctx.fillRect(platformsPoint[i].xPosition, 380, platformsPoint[i].width, 10);
+}
+
+function regeneratePlatformsPoint() 
+{
+  ctx.beginPath();
+  for (let i = 0; i < platformsPoint.length; ++i)
+    ctx.fillRect(platformsPoint[i].xPosition, 380, platformsPoint[i].width, 10);
+    ctx.stroke();
+}
 
 pointStudnet = 0;
 indexStudentInPlatform = 0;
@@ -51,9 +93,11 @@ function checkUserAlive1()
 
 
 generatePlatforms(5);
+generatePlatformPoint();
 function draw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
   regeneratePlatforms();
+  regeneratePlatformsPoint();
   drawStudent(xRange);
 }
 
