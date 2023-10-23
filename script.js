@@ -10,14 +10,14 @@ const PLATFORM_MIN_WIDTH = 20;
 const PLATFORM_MAX_WIDTH = 100;
 const PLATFORM_POSITION_START = 50
 const PLATFORM_WIDTH_START = 50
+const NUMBER_OF_PLATFORMS = 5
 
 const HERO_WIDTH = 17; 
 const HERO_HEIGHT = 25;
 
 const STICK_WIDTH = 3;
 
-platforms = [{ xPosition: PLATFORM_POSITION_START, width: PLATFORM_WIDTH_START }];
-
+platforms = [{ xPosition: PLATFORM_POSITION_START, width: PLATFORM_WIDTH_START }];  // [początek platformy w osi X, szerokość platformy]
 
 const x = PLATFORM_POSITION_START + (PLATFORM_WIDTH_START / 2);
 const y = x  - PLATFORM_POSITION_START;
@@ -30,6 +30,7 @@ platformsPoint = [{ xPosition: PLATFORM_POSITION_START_SMAL, width: PLATFORM_WID
 
 studentX = platforms[0].xPosition + platforms[0].width / 2
 studentY = 0;
+currentPlatformIndex = 0;  // indeks platformy, na której aktualnie będzie rysowana belka
 
 function generatePlatformPoint() 
 {
@@ -92,13 +93,25 @@ function checkUserAlive1()
 }
 
 
-generatePlatforms(5);
+generatePlatforms(NUMBER_OF_PLATFORMS);
 generatePlatformPoint();
 function draw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.lineWidth = STICK_WIDTH;
   regeneratePlatforms();
   regeneratePlatformsPoint();
   drawStudent(xRange);
+  drawSticks()
+}
+
+function drawSticks() {
+  // ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < sticks.length; ++i) {
+    ctx.beginPath();
+    ctx.moveTo(sticks[i].xPosition, stickStartY);
+    ctx.lineTo(sticks[i].xPosition + sticks[i].width, stickStartY);
+    ctx.stroke();
+  }
 }
 
 function generatePlatform() {
@@ -119,13 +132,13 @@ function generatePlatforms(number) {
     ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
 }
 
-function regeneratePlatforms(number) {
+function regeneratePlatforms() {
   for (let i = 0; i < platforms.length; ++i)
     ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
 }
 
 function drawStudent(xRange) {
- 
+
   ctx.save();
   ctx.fillStyle = "black";
   ctx.translate(studentX + xRange,PLATFORM_POSITION_HEIGHT - 28 );
@@ -174,7 +187,10 @@ function drawStudent(xRange) {
 }
 
 
-let stickStartX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1, stickStartY = PLATFORM_POSITION_HEIGHT, stickEndX, stickEndY;
+let stickStartX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1
+let stickStartY = PLATFORM_POSITION_HEIGHT
+let stickEndX
+let stickEndY
 let isDrawingRising = false;
 let isDrawingRotate = false;
 let stickLength = 0;
@@ -182,8 +198,22 @@ let stickRotationAngle = 0;
 let xRange = 0;
 let intervalID;
 
+sticks = [{ xPosition: PLATFORM_POSITION_START + PLATFORM_WIDTH_START, width: stickLength}]
+
+
+function ifStickTouchPlatform() {
+  if (currentPlatformIndex < NUMBER_OF_PLATFORMS)
+    if (platforms[currentPlatformIndex].xPosition <= stickEndX &&
+    platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width >= stickEndX &&
+    stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT)  // stickEndY ostatecznie wynosi np. 400.00000000000017, więc toFixed()
+      return true
+      
+  return false
+}
+
 function drawLine() {
-  ctx.lineWidth = STICK_WIDTH;
+  stickStartX = platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width - 1
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
   ctx.moveTo(stickStartX, stickStartY);
@@ -193,7 +223,8 @@ function drawLine() {
 
 function animateStudent() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawLine();
+  // drawLine();
+  drawSticks()
   draw();
   drawStudent(xRange);
   xRange++; 
@@ -211,9 +242,8 @@ function animateStickRising() {
   drawLine();
   draw();
 
-  if (isDrawingRising) {
+  if (isDrawingRising)
     requestAnimationFrame(animateStickRising);
-  }
 }
 
 function animateStickRotating() {
@@ -229,11 +259,21 @@ function animateStickRotating() {
   if (stickRotationAngle > Math.PI / 2)  // stickRotationAngle > 90 stopni
     isDrawingRotate = false;
 
-  if (isDrawingRotate) {
+  if (isDrawingRotate)
     requestAnimationFrame(animateStickRotating);
+  else {
+    if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)
+      currentPlatformIndex++
+    stickLength = 0
   }
 
+  if (ifStickTouchPlatform()) {
+      len = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
+      sticks.push({ xPosition: len, width: stickEndX - stickStartX });
+      drawSticks()
+    }
 }
+
 
 canvas.addEventListener('mousedown', () => {
   isDrawingRising = true;
@@ -245,7 +285,7 @@ canvas.addEventListener('mouseup', () => {
   isDrawingRising = false;
   isDrawingRotate = true;
   animateStickRotating();
-  intervalID = setInterval(animateStudent, 60);
+  intervalID = setInterval(animateStudent, 10);
 });
 
 canvas.width = window.innerWidth;
@@ -256,6 +296,5 @@ window.addEventListener('resize', () => {
   canvas.height = window.innerHeight;
   draw();
 });
-
 
 draw();
