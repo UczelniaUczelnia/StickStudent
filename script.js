@@ -254,14 +254,13 @@ function drawLine(before = false) { // before oznacza, że odnosimy się do popr
 
 function animateStudent() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // drawLine();
   drawSticks()
   draw();
-  drawStudent(xRange);
   xRange++; 
-  if (studentX + xRange + HERO_WIDTH >= stickEndX){
-    clearInterval(intervalID)
-  }
+  drawStudent(xRange);
+
+  if(!isDrawingRotate && studentX + HERO_WIDTH + xRange < stickEndX)
+    requestAnimationFrame(animateStudent);
 }
 function animateStickRising() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -290,6 +289,9 @@ function animateStickRotating()
   
   if (stickRotationAngle > Math.PI / 2) // stickRotationAngle > 90 stopni
     isDrawingRotate = false;
+
+  if(!isDrawingRotate)
+    requestAnimationFrame(animateStudent);
 
   if (isDrawingRotate)
     requestAnimationFrame(animateStickRotating);
@@ -357,7 +359,6 @@ canvas.addEventListener('mouseup', () => {
   isDrawingRising = false;
   isDrawingRotate = true;
   animateStickRotating();
-  intervalID = setInterval(animateStudent, 10);
 });
 
 canvas.width = window.innerWidth;
