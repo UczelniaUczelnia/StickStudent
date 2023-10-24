@@ -193,6 +193,7 @@ let stickEndX
 let stickEndY
 let isDrawingRising = false;
 let isDrawingRotate = false;
+let isDrawingFalling = false;
 let stickLength = 0;
 let stickRotationAngle = 0;
 let xRange = 0;
@@ -256,22 +257,52 @@ function animateStickRotating() {
   drawLine();
   draw();
   
-  if (stickRotationAngle > Math.PI / 2)  // stickRotationAngle > 90 stopni
+  if (stickRotationAngle > Math.PI / 2) // stickRotationAngle > 90 stopni
     isDrawingRotate = false;
 
   if (isDrawingRotate)
     requestAnimationFrame(animateStickRotating);
   else {
+    // stickLength = 0
+    isDrawingFalling = true
+    requestAnimationFrame(animateStickFalling)
     if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)
       currentPlatformIndex++
-    stickLength = 0
   }
 
   if (ifStickTouchPlatform()) {
-      len = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
-      sticks.push({ xPosition: len, width: stickEndX - stickStartX });
-      drawSticks()
+    len = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
+    sticks.push({ xPosition: len, width: stickEndX - stickStartX });
+    isDrawingFalling = false;
+    drawSticks()
+  }
+  else  // jeżeli belka nie trafi w platformę
+    if (stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) {
+      isDrawingFalling = true;
+      requestAnimationFrame(animateStickFalling)
     }
+}
+
+function animateStickFalling() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stickRotationAngle += Math.PI / 180 * 2;  // obrot o 2 stopnie
+  
+  stickEndX = stickStartX + Math.sin(stickRotationAngle) * stickLength;
+  stickEndY = stickStartY + (-Math.cos(stickRotationAngle)) * stickLength;
+
+  drawLine();
+  draw();
+
+  if (stickRotationAngle > Math.PI)  // stickRotationAngle > 180 stopni
+    isDrawingFalling = false;
+  
+  if (isDrawingFalling)
+    requestAnimationFrame(animateStickFalling);
+  else {
+    stickLength = 0
+    // if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)
+    //   currentPlatformIndex++
+  }
 }
 
 
