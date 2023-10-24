@@ -212,8 +212,11 @@ function ifStickTouchPlatform() {
   return false
 }
 
-function drawLine() {
-  stickStartX = platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width - 1
+function drawLine(before = false) { // before oznacza, że odnosimy się do poprzedniej platformy
+  if (before && currentPlatformIndex > 0)
+    stickStartX = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
+  else
+    stickStartX = platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width - 1
   
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
@@ -263,11 +266,12 @@ function animateStickRotating() {
   if (isDrawingRotate)
     requestAnimationFrame(animateStickRotating);
   else {
-    // stickLength = 0
     isDrawingFalling = true
     requestAnimationFrame(animateStickFalling)
-    if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)
+    if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1 && stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) {
+      isDrawingFalling = true;
       currentPlatformIndex++
+    }
   }
 
   if (ifStickTouchPlatform()) {
@@ -276,11 +280,6 @@ function animateStickRotating() {
     isDrawingFalling = false;
     drawSticks()
   }
-  else  // jeżeli belka nie trafi w platformę
-    if (stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) {
-      isDrawingFalling = true;
-      requestAnimationFrame(animateStickFalling)
-    }
 }
 
 function animateStickFalling() {
@@ -290,7 +289,11 @@ function animateStickFalling() {
   stickEndX = stickStartX + Math.sin(stickRotationAngle) * stickLength;
   stickEndY = stickStartY + (-Math.cos(stickRotationAngle)) * stickLength;
 
-  drawLine();
+  if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)  // belka rysowana na poprzedniej platformie, gdyż currentPlatformIndex została zwiększona o 1
+    drawLine(true);  // currentPlatformIndex została zwiększona o 1, więc przekazujemy wartość true, by się odnieść do poprzedniej platformy
+  else
+    drawLine()  // belka rysowana na ostatniej platformie się nie cofa 
+
   draw();
 
   if (stickRotationAngle > Math.PI)  // stickRotationAngle > 180 stopni
@@ -298,11 +301,8 @@ function animateStickFalling() {
   
   if (isDrawingFalling)
     requestAnimationFrame(animateStickFalling);
-  else {
+  else
     stickLength = 0
-    // if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1)
-    //   currentPlatformIndex++
-  }
 }
 
 
