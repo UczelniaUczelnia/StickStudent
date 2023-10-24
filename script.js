@@ -1,5 +1,24 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+
+pointUser = 0;
+liveUser = 3;
+function displayPointUser()
+{
+	
+	ctx.fillStyle = "dark";
+	ctx.font = "30px Arial";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.fillText("Point user  " + pointUser, centerX + 60, 40);
+	ctx.fillText("Live User  " + liveUser, centerX + 260, 40);
+
+}
 
 
 const PLATFORM_HEIGHT = 200
@@ -102,6 +121,7 @@ function draw() {
   regeneratePlatformsPoint();
   drawStudent(xRange);
   drawSticks()
+  displayPointUser();
 }
 
 function drawSticks() {
@@ -201,14 +221,21 @@ let intervalID;
 
 sticks = [{ xPosition: PLATFORM_POSITION_START + PLATFORM_WIDTH_START, width: stickLength}]
 
+function endGame()
+{
+	
+}
 
 function ifStickTouchPlatform() {
   if (currentPlatformIndex < NUMBER_OF_PLATFORMS)
     if (platforms[currentPlatformIndex].xPosition <= stickEndX &&
     platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width >= stickEndX &&
-    stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT)  // stickEndY ostatecznie wynosi np. 400.00000000000017, więc toFixed()
+    stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) 
+	{
+	 
       return true
-      
+	}		
+
   return false
 }
 
@@ -250,7 +277,8 @@ function animateStickRising() {
     requestAnimationFrame(animateStickRising);
 }
 
-function animateStickRotating() {
+function animateStickRotating() 
+{
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   stickRotationAngle += Math.PI / 180 * 2;  // obrot o 2 stopnie
   
@@ -270,15 +298,28 @@ function animateStickRotating() {
     requestAnimationFrame(animateStickFalling)
     if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1 && stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) {
       isDrawingFalling = true;
-      currentPlatformIndex++
+       currentPlatformIndex++;
     }
   }
 
-  if (ifStickTouchPlatform()) {
+  if (ifStickTouchPlatform()) 
+  {
     len = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
     sticks.push({ xPosition: len, width: stickEndX - stickStartX });
     isDrawingFalling = false;
+	pointUser += 10;
+	 //currentPlatformIndex++;
     drawSticks()
+  }
+  else
+  {
+	  if(liveUser == 0)
+	  {
+		  endGame();
+	  }
+	 
+	  pointUser = 0;
+	  //studentX = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width / 2
   }
 }
 
