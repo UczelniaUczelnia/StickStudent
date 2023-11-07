@@ -1,7 +1,6 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-
 const PLATFORM_HEIGHT = 200
 const PLATFORM_POSITION_HEIGHT = 400
 const PLATFORM_MIN_GAP = 40;
@@ -31,6 +30,25 @@ platformsPoint = [{ xPosition: PLATFORM_POSITION_START_SMAL, width: PLATFORM_WID
 studentX = platforms[0].xPosition + platforms[0].width / 2
 studentY = 0;
 currentPlatformIndex = 0;  // indeks platformy, na której aktualnie będzie rysowana belka
+
+pointStudnet = 0;
+indexStudentInPlatform = 0;
+
+let stickStartX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1
+let stickStartY = PLATFORM_POSITION_HEIGHT
+let stickEndX
+let stickEndY
+let isDrawingRising = false;
+let isDrawingRotate = false;
+let isDrawingFalling = false;
+let stickLength = 0;
+let stickRotationAngle = 0;
+let xRange = 0;
+let intervalID;
+
+sticks = [{ xPosition: PLATFORM_POSITION_START + PLATFORM_WIDTH_START, width: stickLength}]
+
+
 
 function generatePlatformPoint() 
 {
@@ -65,8 +83,6 @@ function regeneratePlatformsPoint()
     ctx.stroke();
 }
 
-pointStudnet = 0;
-indexStudentInPlatform = 0;
 function checkUserAlive()
 {
 	 if(studentX + stickLength >= platforms[indexStudentInPlatform + 1].xPosition && studentX + stickLength <= platforms[indexStudentInPlatform + 1].xPosition + platforms[indexStudentInPlatform + 1].width)
@@ -92,9 +108,6 @@ function checkUserAlive1()
 	return false;
 }
 
-
-generatePlatforms(NUMBER_OF_PLATFORMS);
-generatePlatformPoint();
 function draw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.lineWidth = STICK_WIDTH;
@@ -186,22 +199,6 @@ function drawStudent(xRange) {
   
 }
 
-
-let stickStartX = PLATFORM_POSITION_START + PLATFORM_WIDTH_START - 1
-let stickStartY = PLATFORM_POSITION_HEIGHT
-let stickEndX
-let stickEndY
-let isDrawingRising = false;
-let isDrawingRotate = false;
-let isDrawingFalling = false;
-let stickLength = 0;
-let stickRotationAngle = 0;
-let xRange = 0;
-let intervalID;
-
-sticks = [{ xPosition: PLATFORM_POSITION_START + PLATFORM_WIDTH_START, width: stickLength}]
-
-
 function ifStickTouchPlatform() {
   if (currentPlatformIndex < NUMBER_OF_PLATFORMS)
     if (platforms[currentPlatformIndex].xPosition <= stickEndX &&
@@ -269,7 +266,7 @@ function animateStickRotating() {
     isDrawingFalling = true
     requestAnimationFrame(animateStickFalling)
     if (currentPlatformIndex < NUMBER_OF_PLATFORMS - 1 && stickEndY.toFixed(2) == PLATFORM_POSITION_HEIGHT) {
-      isDrawingFalling = true;
+      // isDrawingFalling = true;
       currentPlatformIndex++
     }
   }
@@ -328,4 +325,7 @@ window.addEventListener('resize', () => {
   draw();
 });
 
+
+generatePlatforms(NUMBER_OF_PLATFORMS);
+generatePlatformPoint();
 draw();
