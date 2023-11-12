@@ -26,9 +26,21 @@ const PLATFORM_HEIGHT_Point_end = 400;
 const PLATFORM_HEIGHT_Point_Start = 395
 platformsPoint = [{ xPosition: PLATFORM_POSITION_START_SMAL, width: PLATFORM_WIDTH_START_Smal}];
 
+class student 
+{
+  posisionStudentX;
+  posisionStudentY;
+  pointUser;
+  constructor(posisionX, posisionY) 
+  {
+    this.posisionStudentX = posisionX;
+    this.posisionStudentY = posisionY;
+  }
+}
 
-studentX = platforms[0].xPosition + platforms[0].width / 2
-studentY = 0;
+let player = new student(platforms[0].xPosition + platforms[0].width / 2, PLATFORM_POSITION_HEIGHT - 28);
+
+
 currentPlatformIndex = 0;  // indeks platformy, na której aktualnie będzie rysowana belka
 
 pointStudnet = 0;
@@ -85,10 +97,10 @@ function regeneratePlatformsPoint()
 
 function checkUserAlive()
 {
-	 if(studentX + stickLength >= platforms[indexStudentInPlatform + 1].xPosition && studentX + stickLength <= platforms[indexStudentInPlatform + 1].xPosition + platforms[indexStudentInPlatform + 1].width)
+	 if(player.posisionStudentX + stickLength >= platforms[indexStudentInPlatform + 1].xPosition && player.posisionStudentX + stickLength <= platforms[indexStudentInPlatform + 1].xPosition + platforms[indexStudentInPlatform + 1].width)
 	 {
 		 indexStudentInPlatform++;
-		 pointStudnet += 10;
+		 player.pointUser += 10;
 		 return true;
 	 } 
 	 return false;
@@ -98,7 +110,7 @@ function checkUserAlive1()
 {
 	for(let i = indexStudentInPlatform; i < platforms.length() - 1; ++i)
 	{
-	 if(studentX + stickLength >= platforms[i + 1].xPosition && studentX + stickLength <= platforms[i + 1].xPosition + platforms[i + 1].width)
+	 if(player.posisionStudentX + stickLength >= platforms[i + 1].xPosition && player.posisionStudentX + stickLength <= platforms[i + 1].xPosition + platforms[i + 1].width)
 	 {
 		 indexStudentInPlatform += i;
 		 pointStudnet += 10 * i;
@@ -150,11 +162,12 @@ function regeneratePlatforms() {
     ctx.fillRect(platforms[i].xPosition, PLATFORM_POSITION_HEIGHT, platforms[i].width, PLATFORM_HEIGHT);
 }
 
+
 function drawStudent(xRange) {
 
   ctx.save();
   ctx.fillStyle = "black";
-  ctx.translate(studentX + xRange,PLATFORM_POSITION_HEIGHT - 28 );
+  ctx.translate(player.posisionStudentX + xRange, player.posisionStudentY );
 
   // Body
   ctx.beginPath();
@@ -211,9 +224,9 @@ function ifStickTouchPlatform() {
 
 function drawLine(before = false) { // before oznacza, że odnosimy się do poprzedniej platformy
   if (before && currentPlatformIndex > 0)
-    stickStartX = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
+    player.posisionStudentX = platforms[currentPlatformIndex - 1].xPosition + platforms[currentPlatformIndex - 1].width - 1
   else
-    stickStartX = platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width - 1
+    player.posisionStudentX = platforms[currentPlatformIndex].xPosition + platforms[currentPlatformIndex].width - 1
   
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
@@ -229,7 +242,7 @@ function animateStudent() {
   draw();
   drawStudent(xRange);
   xRange++; 
-  if (studentX + xRange + HERO_WIDTH >= stickEndX){
+  if (player.posisionStudentX + xRange + HERO_WIDTH >= stickEndX){
     clearInterval(intervalID)
   }
 }
