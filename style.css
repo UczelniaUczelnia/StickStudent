@@ -1,11 +1,60 @@
-body {
+html, body {
+    height: 100%;
     margin: 0;
-    overflow: hidden;
-  }
+}
 
-  canvas {
-    display: block;
-  }
 
- 
+body {
+    cursor: pointer;
+}
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#points {
+    border: 3px solid black;
+    color: black;
+    width: 100px;
+    padding-left: 10px;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-size: 2em;
+    font-weight: 900;
+}
+
+#instruction {
+    position: absolute;
+    top: 12em;
+    font-weight: 600;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+#restart {
+    width: 120px;
+    height: 50px;
+    position: absolute;
+    border-radius: 20px;
+    color: white;
+    background-color: black;
+    border: none;
+    font-weight: 700;
+    font-size: 1.2em;
+    display: none;
+    cursor: pointer;
+}
+
+
+#bonus {
+    position: absolute;
+    opacity: 0;
+    font-size: 3em;
+}
+
 
