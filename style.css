@@ -5,6 +5,7 @@ html, body {
 
 
 body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
 }
 
@@ -21,6 +22,7 @@ body {
     color: black;
     width: 100px;
     padding-left: 10px;
+    border-radius: 15px;
     position: absolute;
     top: 30px;
     right: 30px;
@@ -33,7 +35,9 @@ body {
     top: 12em;
     font-weight: 600;
     font-size: 1.2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
+    transition: opacity 2s;
 }
 
 #restart {
@@ -46,6 +50,7 @@ body {
     border: none;
     font-weight: 700;
     font-size: 1.2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: none;
     cursor: pointer;
 }
@@ -54,6 +59,7 @@ body {
 #bonus {
     position: absolute;
     opacity: 0;
+    transition: opacity 2s;
     font-size: 3em;
 }
 

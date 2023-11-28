@@ -5,7 +5,15 @@ let studentPositionY;
 let sceneTranslation;
 let platforms = [];
 let sticks = [];
+let trees = [];
 let points = 0;
+
+const HILL1_HEIGHT = 200;
+const HILL1_MAX_HEIGH = 25;
+const HILL1_FREQUENCY = 1;
+const HILL2_HEIGHT = 125;
+const HILL2_MAX_HEIGH = 20;
+const HILL2_FREQUENCY = 0.7;
 
 const STUDENT_WIDTH = 17;
 const STUDENT_HEIGHT = 30;
@@ -43,10 +51,30 @@ function resetGame() {
         generatePlatform();
 
     sticks = [{x: platforms[0].x + platforms[0].w, length: 0, rotation: 0}];
+    trees = [];
+
+    for (let i = 0; i < 10; ++i)
+        generateTree();
 
     studentPositionX = platforms[0].x + platforms[0].w - 10;
     studentPositionY = 0;
     draw()
+}
+
+function generateTree() {
+    const minimumGap = 50;
+    const maximumGap = 170;
+
+    const lastTree = trees[trees.length - 1];
+    let furthestX = lastTree ? lastTree.x : 0;
+
+    const x =
+    furthestX +
+    minimumGap +
+    Math.floor(Math.random() * (maximumGap - minimumGap));
+    const treeColors = ["#558b2f", "#43a047", "#76ff03"];
+    const color = treeColors[Math.floor(Math.random() * 3)];
+    trees.push({ x, color});
 }
 
 function generatePlatform() {
@@ -63,6 +91,13 @@ function generatePlatform() {
 
     platforms.push({x, w});
 }
+
+window.addEventListener('keydown', (event) => {
+    if (event.key == " ") {
+        resetGame();
+        return;
+    }
+});
 
 window.addEventListener('mousedown', () => {
     if (status == "waiting") {
@@ -85,6 +120,7 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
     draw();
 });
+
 
 function animate(timestamp) {
     if (!lastTimestamp) {
@@ -109,9 +145,19 @@ function animate(timestamp) {
 
                 const [nextPlatform, bonusHit] = platformHit();
                 if (nextPlatform) {
-                    points += 1
+
+                    if (bonusHit) {
+                        points += 2
+                        bonusEl.style.opacity = 1;
+                        setTimeout(() => (bonusEl.style.opacity = 0), 1000);
+                    }
+                    else
+                        points += 1
+
                     pointsEl.innerText = points;
                     generatePlatform();
+                    generateTree();
+                    generateTree();
                 }
                 status = 'walking';
             }
@@ -189,13 +235,18 @@ function draw() {
     ctx.save();
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
+    drawBackground();
+    ctx.translate(
+        (window.innerWidth - CANVAS_WIDTH) / 2 - sceneTranslation,
+        (window.innerHeight - CANVAS_HEIGHT) / 2
+    );
     drawPlatforms();
     drawStudent();
     drawSticks();
     ctx.restore();
 }
 
-restartButton.addEventListener('click', () => {
+restartButton.addEventListener('click', (event) => {
     resetGame();
     restartButton.style.display = 'none';
 });
@@ -204,6 +255,11 @@ function drawPlatforms() {
     platforms.forEach(({x, w}) =>{
         ctx.fillStyle = 'black';
         ctx.fillRect(x, CANVAS_HEIGHT - PLATFORM_HEIGHT, w, PLATFORM_HEIGHT + (window.innerHeight - CANVAS_HEIGHT) / 2);
+
+        if (sticks.last().x < x) {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(x + w/2 - PLATFORM_BONUS_SIZE/2, CANVAS_HEIGHT - PLATFORM_HEIGHT, PLATFORM_BONUS_SIZE, PLATFORM_BONUS_SIZE);
+        }
     });
 }
 
@@ -223,20 +279,38 @@ function drawStudent() {
 
     ctx.beginPath();
     ctx.fillStyle = "white";
-    ctx.arc(5, -7, 3, 0, Math.PI * 2 , false);
+    ctx.arc(1.5, -7.5, 1.7, 0, Math.PI * 2 , false);
+    ctx.arc(6, -7.4, 1.5, 0, Math.PI * 2 , false);
     ctx.fill()
-    ctx.fillStyle = "red";
-    ctx.fillRect(-STUDENT_WIDTH / 2 - 1, -12, STUDENT_WIDTH + 2, 4.5);
+    ctx.fillStyle = "black";
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(-9, -14.5);
-    ctx.lineTo(-17, -18.5);
-    ctx.lineTo(-14, -8.5);
+    ctx.moveTo(-9, -20);
+    ctx.lineTo(-14, -13);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(12, -20);   // prawy
+    ctx.lineTo(0, -13);    // dolny
+    ctx.lineTo(-12, -20);  // lewy
+    ctx.lineTo(-2, -25);   // górny
     ctx.fill()
+
+    ctx.fillStyle = "#2A2828";
     ctx.beginPath();
-    ctx.moveTo(-10, -10.5);
-    ctx.lineTo(-15, -3.5);
-    ctx.lineTo(-5, -7);
+    ctx.moveTo(-6, -18);
+    ctx.lineTo(-6, -14);
+    ctx.lineTo(0, -14);
     ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(6, -18);
+    ctx.lineTo(6, -14);
+    ctx.lineTo(0, -14);
+    ctx.fill();
+
     ctx.restore();
 }
 
@@ -267,4 +341,68 @@ function drawSticks() {
         ctx.stroke();
         ctx.restore();
     });
+}
+
+function drawBackground() {
+    // kolor nieba
+    var gradient = ctx.createLinearGradient(0,0,0, window.innerHeight);
+    gradient.addColorStop(0, "#8ad5f4");
+    gradient.addColorStop(1, "#adedf5");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    drawHill(HILL1_HEIGHT, HILL1_MAX_HEIGH, HILL1_FREQUENCY, "#68da27");
+    drawHill(HILL2_HEIGHT, HILL2_MAX_HEIGH, HILL2_FREQUENCY, "#3f9534");
+
+    // rysowanie drzew
+    trees.forEach((trees) => drawTree(trees.x, trees.color));
+}
+
+function drawTree(x, color) {
+    ctx.save();
+
+    const sinY = window.innerHeight - HILL1_HEIGHT;
+    ctx.translate(
+        (-sceneTranslation + x) * HILL1_FREQUENCY, Math.sin((x / 180) * Math.PI) * HILL1_MAX_HEIGH + sinY
+    );
+
+    const treeTrunkHeight = 13;
+    const treeTrunkWidth = 4;
+    const treeCrownHeight = 55;
+    const treeCrownWidth = 30;
+
+    // pień
+    ctx.fillStyle = "#777c3e";
+    ctx.fillRect(
+        -treeTrunkWidth / 2,
+        -treeTrunkHeight,
+        treeTrunkWidth,
+        treeTrunkHeight
+    );
+
+    ctx.beginPath();
+    ctx.moveTo(-treeCrownWidth / 2, -treeTrunkHeight);
+    ctx.lineTo(0, -(treeTrunkHeight + treeCrownHeight));
+    ctx.lineTo(treeCrownWidth /2, -treeTrunkHeight);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawHill(height, maxHeigh, frequency, color) {
+    ctx.beginPath();
+    ctx.moveTo(0, window.innerHeight);
+
+    let sinY = window.innerHeight - height;
+    let hillY = Math.sin(((sceneTranslation) * frequency / 180) * Math.PI) * maxHeigh + sinY
+    ctx.lineTo(0, hillY);
+    
+    for (let i = 0; i < window.innerWidth; i++) {
+        sinY = window.innerHeight - height;
+        hillY = Math.sin(((sceneTranslation + i) * frequency / 180) * Math.PI) * maxHeigh + sinY
+        ctx.lineTo(i, hillY);
+    }
+    ctx.lineTo(window.innerWidth, window.innerHeight);
+    ctx.fillStyle = color;
+    ctx.fill();
 }
