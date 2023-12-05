@@ -1,15 +1,15 @@
+/* Global Styles */
 html, body {
     height: 100%;
     margin: 0;
 }
-
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
 }
 
-
+/* Container Styles */
 .container {
     display: flex;
     justify-content: center;
@@ -17,6 +17,7 @@ body {
     height: 100%;
 }
 
+/* Points Display */
 #points {
     border: 3px solid black;
     color: black;
@@ -30,6 +31,7 @@ body {
     font-weight: 900;
 }
 
+/* Instruction Styles */
 #instruction {
     position: absolute;
     top: 12em;
@@ -40,6 +42,7 @@ body {
     transition: opacity 2s;
 }
 
+/* Restart Button Styles */
 #restart {
     width: 120px;
     height: 50px;
@@ -55,12 +58,10 @@ body {
     cursor: pointer;
 }
 
-
+/* Bonus Display Styles */
 #bonus {
     position: absolute;
     opacity: 0;
     transition: opacity 2s;
     font-size: 3em;
 }
-
-
