@@ -252,6 +252,7 @@ function generatePlatform() {
 window.addEventListener('keydown', (event) => {
     if (event.key == " ") {
         resetGame();
+        restartButton.style.display = "none";
         return;
     }
 });
